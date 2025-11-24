@@ -59,9 +59,9 @@ $$
     - **Importante:** Sin calibración este valor no será más que una estimación relativa.
 
     - **Solución aproximada:** Utilizando el "ratio de ratios" se puede comparar la absorción del canal rojo vs la del canal azul o verde:
+    
 $$
-Ratio = \frac{AC_{red} \cdot DC_{blue}}{AC_{blue} \cdot DC_{red}}
+\text{Ratio} = \frac{AC_{\text{red}} / DC_{\text{red}}}{AC_{\text{blue}} / DC_{\text{blue}}}
 $$
-
 
 Documento creado por Iván Pérez Díaz
