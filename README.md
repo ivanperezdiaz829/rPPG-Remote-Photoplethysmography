@@ -12,8 +12,10 @@ El proyecto consiste en la obtención de datos haciendo uso de la visión por co
     - **Algoritmo:** Transformada rápida de Fourier (**FFT**) haciendo uso de las librerías `spicy.fftpack.fft`o `numpy.fft`.
 
     - **Proceso:** Se convierte la señal temporal al espectro de frecuencias. Se identifica el pico de máxima potencia (*Peack Frequency*) dentro del rango 0.7-0.4 Hz:
-    
-        - $$BPM = f_{max} \times 60$$
+
+        $$
+        BPM = f_{max} \times 60
+        $$
 
 2. **Variabilidad de la Frecuencia Cardíaca (HRV):** Este es el parámetro que saca la proporción de cambio de la frecuencia cardíaca.
 
@@ -41,7 +43,9 @@ El proyecto consiste en la obtención de datos haciendo uso de la visión por co
 
     - **Proceso:** Se usa un filtro pasa-banda (*Butterworh* de orden 2) con un corte inferior de 0.1 Hz (6 respiraciones/min) y un corte superior de 0.5 Hz (30 respiraciones/min), se extrae la señal respiratoria aislando la "envolvente" de la señal PPG filtrada (o analizar la variación de picos) y se estima el **RPM** sobre la nueva señal de baja frecuencia:
 
-        - $$RPM = Frecuencia\_Dominante\_Baja \times 60$$
+        $$
+        RPM = Frecuencia\_Dominante\_Baja \times 60
+        $$
 
 4. **Saturación de Oxígeno ($SpO_2$):** Es con diferencia el parámetro más complicado de obtener y puede ser el que se termine descartando.
 
@@ -51,7 +55,9 @@ El proyecto consiste en la obtención de datos haciendo uso de la visión por co
 
     - **Solución aproximada:** Utilizando el "ratio de ratios" se puede comparar la absorción del canal rojo vs la del canal azul o verde:
 
-        - $$Ratio = \frac{AC_{red}/DC_{red}}{AC_{blue}/DC_{blue}}$$
+        $$
+        Ratio = \frac{AC_{red}/DC_{red}}{AC_{blue}/DC_{blue}}
+        $$
 
     Y luego, usando la fórmula empírica para estimar porcentaje ($SpO_2 = A - B \times Ratio$).
 
