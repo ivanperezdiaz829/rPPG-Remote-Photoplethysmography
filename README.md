@@ -63,3 +63,4 @@ $$
 \text{Ratio} = \frac{AC_{\text{red}} / DC_{\text{red}}}{AC_{\text{blue}} / DC_{\text{blue}}}
 $$
 
+Documento creado por Iván Pérez Díaz
