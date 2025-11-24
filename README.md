@@ -1,4 +1,4 @@
-# **rPPG (Remote Photoplethysmography)**
+# **Remote Photoplethysmography (rPPG)**
 
 El proyecto consiste en la obtención de datos haciendo uso de la visión por computador, creando un modelo de **rPPG (Fotoplestimografía Remota)** en donde se extraerán los siguientes datos a partir de un video o en tiempo real de la cara de una persona:
 
