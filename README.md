@@ -60,8 +60,8 @@ $$
 
     - **Solución aproximada:** Utilizando el "ratio de ratios" se puede comparar la absorción del canal rojo vs la del canal azul o verde:
 $$
-\text{Ratio} = 
-\frac{AC_{\text{red}} \cdot DC_{\text{blue}}}{AC_{\text{blue}} \cdot DC_{\text{red}}}
+Ratio = \frac{AC_{red} \cdot DC_{blue}}{AC_{blue} \cdot DC_{red}}
 $$
+
 
 Documento creado por Iván Pérez Díaz
