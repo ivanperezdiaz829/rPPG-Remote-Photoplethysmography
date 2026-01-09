@@ -1,0 +1,524 @@
+\documentclass[a4paper,12pt]{article}
+
+% --- Paquetes para codificación y lenguaje ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+
+% --- Paquete para incluir imágenes ---
+\usepackage{graphicx}
+
+% --- Paquetes para código fuente (Listings) ---
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Configuración de colores y estilo para Python
+\definecolor{codegreen}{rgb}{0,0.5,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.97,0.97,0.97}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    frame=single
+}
+
+\lstset{style=mystyle}
+
+% --- Paquete para enlaces (configurado para color azul) ---
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,        % Quita los recuadros rojos/verdes
+    linkcolor=black,        % Color de los enlaces internos (índice)
+    filecolor=magenta,
+    urlcolor=blue,          % Color de los enlaces web
+}
+
+% --- Paquetes para matemáticas y símbolos ---
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% --- Paquetes para formato y márgenes ---
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{enumitem} 
+\usepackage{float} % Para posicionar tablas
+
+% --- PERSONALIZACIÓN DEL ÍNDICE (TOC) ---
+\usepackage{tocloft}
+
+% 1. Asegurar que el título sea "Índice"
+\addto\captionsspanish{
+    \renewcommand{\contentsname}{Índice}
+}
+
+% 2. Cambiar la fuente del título a HUGE y Negrita
+\renewcommand{\cfttoctitlefont}{\Huge\bfseries}
+
+% 3. Añadir la línea horizontal (\hrule) después del título
+\renewcommand{\cftaftertoctitle}{%
+    \par\vspace{0.2cm}   % Un poco de espacio vertical antes de la línea
+    \hrule height 1pt    % La línea horizontal (grosor 1pt)
+    \vspace{0.5cm}       % Espacio después de la línea antes de empezar la lista
+}
+
+% INICIO DEL DOCUMENTO
+\begin{document}
+
+% ---------------------------------------------------------
+% PORTADA
+% ---------------------------------------------------------
+\begin{titlepage}
+    \centering 
+    
+    % Título
+    {\Huge \textbf{Fotoplestimografía Remota (rPPG)} \par}
+    \vspace{0.2cm}
+    {\large \textbf{Proyecto de Visión por Computador para la Extracción de Signos Vitales en tiempo real mediante imagen} \par}
+    \vspace{0.3cm}
+    \hrule 
+    \vspace{2.5cm} 
+    
+    % IMAGEN
+    \includegraphics[width=1\textwidth]{Portada_Proyecto.png}
+    \vspace{2.5cm} 
+    
+    % Autoría
+    {\Large \underline{\textbf{Autoría del Proyecto:}} \par}
+
+    \vspace{0.3cm}
+    
+    {\large Iván Pérez Díaz \par}
+    \vspace{0.05cm}
+    {\large Asia Gatta \par}
+    
+    \vfill 
+    
+    % Fecha
+    {\Large \today \par} 
+
+\end{titlepage}
+
+\newpage
+\tableofcontents
+\newpage
+
+% ---------------------------------------------------------
+% CONTENIDO DEL PROYECTO
+% ---------------------------------------------------------
+
+\section{Introducción: El Principio Físico (rPPG)} \label{sec:introducción}
+
+La base del proyecto es la \textbf{Fotoplestimografía Remota (rPPG)}. Técnica que permite detectar los cambios, a simple vista invisibles, en el color de la piel causados por el flujo sanguíneo mediante el uso de la \textbf{Visión por Computador} y el \textbf{Procesamiento Digital de Señales (DSP)}.
+
+\vspace{0.3cm}
+
+El principio fisiológico de la \textbf{rPPG} se basa en la absorción de la luz por la \href{https://www.cun.es/diccionario-medico/terminos/hemoglobina}{Hemoglobina} y se pueden repartir en los siguientes puntos principales:
+\begin{itemize}
+    \item \textbf{Absorción:} La hemoglobina presente en la sangre absorbe la luz en el espectro visible, especialmente en las longitudes de onda verdes ($\approx 540$ nm) y, en menor medida, en las azules ($\approx 450$–$495$ nm) y rojas ($\approx 620$–$750$ nm).
+    \item \textbf{El Pulso:} Con cada contracción cardíaca, el volumen de sangre en los vasos sanguíneos de la piel varía, causando cambios periódicos en la cantidad de luz absorbida.
+    \item \textbf{Variación Cromática:} Cuando el volumen de sangre aumenta, la absorción de luz incrementa (la piel se oscurece imperceptiblemente). El proyecto consiste en detectar estas micro-variaciones temporales en el color de la piel.
+\end{itemize}
+
+\section{Configuración del Sensor (Cámara)} \label{sec:configuración_cámara}
+
+Uno de los mayores obstáculos para el rPPG es el \textbf{ajuste automático} de la cámara (\textit{Auto-Exposure} o \textit{Auto-Gain}). Dicho suceso consiste en que si la cámara ajusta el brillo automáticamente para compensar cambios de luz, se destruye la señal biológica, ya que el cambio de color de la piel se enmascara con el ajuste del sensor, fenómeno que puede suceder con cámaras antiguas o de baja calidad.
+
+\vspace{0.3cm}
+
+En el método \texttt{setup\_camera}, se fuerza una exposición manual baja para \textbf{evitar la saturación} (\textit{clipping}), moltivo por el cuál al ejecutar en tiempo real se aprecia una iluminación local de entrada muy baja. Arreglando así el problema de que algún píxel alcance el valor máximo (255), perdiendo así la capacidad de registrar cambios sutiles.
+
+\vspace{0.3cm}
+
+\begin{lstlisting}[language=Python]
+def setup_camera(self):
+    cap = cv2.VideoCapture(0)
+    # Evitar el ajuste automatico que elimina la senal del pulso
+    cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.25) 
+    cap.set(cv2.CAP_PROP_EXPOSURE, -4.0) 
+    return cap
+\end{lstlisting}
+
+\section{Procesamiento de Región de Interés (ROI)} \label{sec:roi}
+
+Para extraer la señal cruda, se opta por la utilización de parches de píxeles de zonas altamente vascularizadas (frente y mejillas). Para ello, la operación matemática clave es el \textbf{promedio espacial} (Dada una región de interés con $N$ píxeles, se calcula la señal $S(t)$ en el instante $t$).
+
+\begin{equation}
+    S(t) = \frac{1}{N} \sum_{i=1}^{N} p_i(t)
+\end{equation}
+
+Donde $p_i(t)$ es el valor de un píxel individual. 
+
+\vspace{0.3cm}
+
+\textbf{Justificación Matemática:} Las cámaras web (como las de algunos portátiles) presentan \textbf{ruido de disparo (ruido fotónico)} que sigue una distribución aproximadamente Gaussiana. Al promediar $N$ píxeles, la señal del pulso (coherente en toda la región) se mantiene, mientras que el ruido aleatorio se reduce por un factor de $\sqrt{N}$. Esto mejora drásticamente la \textbf{Relación Señal-Ruido (SNR)}.
+
+\vspace{0.3cm}
+
+\begin{lstlisting}[language=Python]
+# Fragmento de get_roi_average
+crop = frame[y1:y2, x1:x2]
+if crop.size > 0:
+    # Promedio espacial para reducir ruido de disparo
+    mean = np.mean(crop, axis=(0, 1)) 
+    accum_color += mean
+\end{lstlisting}
+
+\section{Estimación Geométrica de Distancia} \label{sec:distancia}
+
+El sistema implementa una validación de distancia utilizando el \href{http://rjuarezs.com/t_pinhole.html}{modelo de cámara \textit{Pinhole}} y la distancia interpupilar promedio.
+
+\begin{equation}
+    D = \frac{W_{real} \cdot F}{W_{pixel}}
+\end{equation}
+
+Donde:
+\begin{itemize}
+    \item $D$: Distancia del usuario a la cámara.
+    \item $W_{real}$: Ancho real promedio entre los ojos humanos ($\approx 11.5$ cm).
+    \item $F$: Longitud focal de la cámara (en píxeles).
+    \item $W_{pixel}$: Distancia euclidiana calculada entre los \textit{landmarks} de los ojos.
+\end{itemize}
+
+\vspace{0.3cm}
+
+\begin{lstlisting}[language=Python]
+# Fragmento de estimate_distance_and_check
+# Distancia Euclidiana en pixeles
+pixel_dist = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+# Formula de proyeccion
+distance_cm = (REAL_EYE_WIDTH * FOCAL_LENGTH) / pixel_dist
+\end{lstlisting}
+
+\section{Algoritmo POS (\textit{Plane-Orthogonal-to-Skin})} \label{sec:algoritmo_pos}
+
+El núcleo del procesamiento es el algoritmo POS (Wang et al., 2017). Este método separa matemáticamente las variaciones de color inducidas por el pulso de las inducidas por el movimiento o cambios de iluminación.
+
+\subsection{Normalización Temporal}
+Primero, se normaliza cada canal de color ($C$) dividiéndolo por su media temporal ($\mu_C$) para eliminar el color estático de la piel (\href{https://www.cun.es/diccionario-medico/terminos/melanina}{melanina}) y obtener solo las variaciones relativas tal que:
+
+\begin{equation}
+    C_n(t) = \frac{C(t)}{\mu_C} - 1
+\end{equation}
+
+\vspace{0.3cm}
+
+\begin{lstlisting}[language=Python]
+# Normalizacion en pos_algorithm
+mean_color = np.mean(rgb_array, axis=0)
+Cn = rgb_array / (mean_color + 1e-6) - 1
+\end{lstlisting}
+
+\subsection{Proyección Ortogonal y Fusión} \label{sec:proyeccion_ort_pos}
+El algoritmo proyecta las señales RGB en un plano ortogonal al tono de piel. Se definen dos señales de proyección $S_1$ y $S_2$:
+
+\begin{equation}
+    S_1 = G - B
+\end{equation}
+\begin{equation}
+    S_2 = G + B - 2R
+\end{equation}
+
+Posteriormente, se calcula un factor de sintonización $\alpha$ basado en las desviaciones estándar ($\sigma$) para fusionar ambos componentes, cancelando el ruido especular:
+
+\begin{equation}
+    \alpha = \frac{\sigma(S_1)}{\sigma(S_2)}
+\end{equation}
+\begin{equation}
+    P_{ppg} = S_1 + \alpha \cdot S_2
+\end{equation}
+
+\begin{lstlisting}[language=Python]
+# Proyeccion y fusion alpha
+S1 = g - b
+S2 = g + b - 2*r
+alpha = np.std(S1) / (np.std(S2) + 1e-6)
+P = S1 + alpha * S2
+\end{lstlisting}
+
+\section{Procesamiento Digital de Señales: Frecuencia Cardíaca} \label{sec:procesamiento_dsp_bpm}
+
+Una vez extraída la señal cruda $P_{ppg}$, se aplica una cadena de procesamiento para obtener la frecuencia cardíaca (BPM, \textit{Beats Per Minute}).
+
+\subsection{Interpolación} \label{sec:interpolacion_jitter}
+Las cámaras web no capturan frames a intervalos perfectos (\textit{jitter} temporal). La FFT requiere un muestreo uniforme. Para lograrlo, se opta por utilizar la interpolación lineal para remuestrear la señal a una frecuencia objetivo ($FS_{target} = 30$ Hz).
+
+\vspace{0.3cm}
+
+\begin{lstlisting}[language=Python]
+# Interpolacion para corregir jitter de la camara
+f_interp = interp1d(raw_times, raw_rgb[:, i], kind='linear')
+interpolated_rgb[:, i] = f_interp(uniform_times)
+\end{lstlisting}
+
+\subsection{Filtrado Pasa-Banda (\textit{Butterworth})} \label{sec:filtro_banda_bpm}
+Se aplica un \href{https://es.wikipedia.org/wiki/Filtro_de_Butterworth}{filtro \textit{Butterworth}} para aislar el rango cardíaco generado por el usuario, eliminando ruido de alta frecuencia y movimientos lentos.
+\begin{itemize}
+    \item \textbf{Corte inferior:} 0.7 Hz ($\approx$ 42 BPM).
+    \item \textbf{Corte superior:} 3.0 Hz ($\approx$ 180 BPM).
+\end{itemize}
+
+\begin{lstlisting}[language=Python]
+# Filtro Butterworth de orden 3
+b, a = signal.butter(3, [0.7/nyquist, 3.0/nyquist], btype='band')
+filtered_ppg = signal.filtfilt(b, a, ppg_signal)
+\end{lstlisting}
+
+\subsection{Análisis Espectral (FFT)} \label{sec:analisis_espectral_bpm}
+Se realiza una transformación de la señal al dominio de la frecuencia usando la \href{https://svantek.com/es/academia/transformada-rapida-de-fourier-fft/}{Transformada Rápida de Fourier (FFT)}. En donde se identifica el pico de mayor energía ($f_{peak}$) dentro del rango válido para calcular los BPM.
+
+\begin{equation}
+    \text{BPM} = f_{peak} \times 60
+\end{equation}
+
+\section{Procesamiento Digital de Señales: Frecuencia Respiratoria (RPG)} \label{sec:procesamiento_dsp_rpm}
+
+Adicionalmente al pulso, la señal \textbf{PPG} contiene información respiratoria conocida como \textbf{Modulación de Línea Base}. La respiración provoca cambios de presión torácica que modulan el retorno venoso a baja frecuencia.
+
+\vspace{0.3cm}
+
+Para detectar esto, se aumenta el \textit{buffer} a 900 frames ($\approx 30$ segundos) para capturar ciclos respiratorios completos.
+
+\subsection{Filtrado Respiratorio} \label{sec:filtro_banda_rpm}
+Se aísla la componente respiratoria aplicando un filtro \textit{Butterworth} centrado en frecuencias mucho más bajas que el \textbf{\hyperref[sec:procesamiento_dsp_bpm]{pulso cardíaco}}:
+
+\begin{itemize}
+    \item \textbf{Rango:} 0.1 Hz (6 RPM) a 0.5 Hz (30 RPM).
+\end{itemize}
+
+\begin{lstlisting}[language=Python]
+# 1. FILTRADO (Butterworth de 2 orden, 0.1-0.5 Hz)
+low = 0.1 / nyquist
+high = 0.5 / nyquist
+b, a = signal.butter(2, [low, high], btype='band')
+
+# Aplicar filtro
+filtered_rr = signal.filtfilt(b, a, ppg_signal)
+\end{lstlisting}
+
+\subsection{Cálculo de RPM} \label{sec:calculo_rpm}
+Al igual que con el pulso, se aplica una ventana (\href{https://es.wikipedia.org/wiki/Ventana_(función)}{Hamming}) y se calcula la FFT. El pico dominante en este rango de baja frecuencia corresponde a la Frecuencia Respiratoria (RPM).
+
+\begin{equation}
+    \text{RPM} = f_{resp} \times 60
+\end{equation}
+
+\begin{lstlisting}[language=Python]
+# 3. IDENTIFICACION DE PICO (Rango 0.1 - 0.5 Hz)
+mask = (xf >= 0.1) & (xf <= 0.5)
+valid_yf = np.abs(yf[mask])
+peak_idx = np.argmax(valid_yf)
+freq_dominante = valid_xf[peak_idx]
+
+# Conversion Hz -> Respiraciones Por Minuto
+rpm = freq_dominante * 60.0
+\end{lstlisting}
+
+\section{Informe de Viabilidad y Condiciones Operativas} \label{sec:informe_viabilidad}
+
+A continuación, se detallan las consideraciones operativas, limitaciones y variables que afectan al sistema de rPPG implementado. Estas condiciones son críticas para obtener una Relación Señal-Ruido (SNR) adecuada.
+
+\subsection{Condiciones Ideales del Entorno} \label{sec:condiciones_ideales}
+Para que el \textbf{\hyperref[sec:algoritmo_pos]{algoritmo POS}} y el \textbf{\hyperref[sec:analisis_espectral_bpm]{análisis espectral}} funcionen con máxima precisión, el entorno debe cumplir las siguientes características:
+\begin{itemize}
+    \item \textbf{Iluminación:} Luz difusa, constante y frontal. La luz natural indirecta es ideal.
+    \item \textbf{Sujeto:} Sentado, en reposo (sin hablar ni gesticular) y mirando a la cámara.
+    \item \textbf{Hardware:} Webcam capaz de mantener 30-60 FPS constantes y soporte para control manual de exposición.
+\end{itemize}
+
+\subsection{Análisis de Variables Críticas} \label{sec:analisis_variables_criticas}
+
+\subsubsection{Iluminación (Factor Crítico)} \label{sec:iluminacion_factor_critico}
+La luz es la portadora de la señal.
+\begin{itemize}
+    \item \textbf{Baja Luz:} Aumenta el ruido de disparo (grano) del sensor, enmascarando el pulso.
+    \item \textbf{Inestabilidad:} Luces fluorescentes baratas pueden introducir parpadeo (\textit{flickering}) a 50Hz, generando armónicos falsos en la FFT.
+\end{itemize}
+
+\subsubsection{Tono de Piel (Fototipo)} \label{sec:tono_piel_fototipo}
+\begin{itemize}
+    \item \textbf{Pieles Claras (Tipos I-III):} Alta reflectancia, mejor SNR.
+    \item \textbf{Pieles Oscuras (Tipos IV-VI):} La alta concentración de melanina absorbe más luz incidente, reduciendo la modulación de intensidad reflejada. Requiere mayor iluminación externa para funcionar correctamente.
+\end{itemize}
+
+\subsubsection{Movimiento y Gesticulación} \label{sec:movimiento_gesticulacion}
+El movimiento es el mayor desafío del rPPG.
+\begin{itemize}
+    \item \textbf{Rígido:} El algoritmo POS tolera leves inclinaciones.
+    \item \textbf{Gesticulación:} Hablar o reír deforma la malla facial y desplaza la sangre por presión muscular, invalidando la lectura cardíaca momentáneamente.
+\end{itemize}
+
+\subsubsection{Oclusión (Maquillaje, Barba y Flequillo)} \label{sec:oclusion_maquillaje_barba}
+El maquillaje denso actúa como una capa opaca que bloquea la visión de los capilares. Si la ROI (mejillas) está cubierta por barba densa, el sistema no podrá extraer la señal PPG, debiendo recurrir exclusivamente a la frente si está despejada.
+
+\subsection{Casos de Fallo (\textit{Failure Cases})} \label{sec:casos_fallo}
+El sistema arrojará datos erróneos en las siguientes situaciones:
+\begin{enumerate}
+    \item \textbf{Ajuste Automático (\textit{Auto-Exposure}):} Si la cámara compensa los cambios de brillo automáticamente, cancela la señal del pulso.
+    \item \textbf{Distancia Incorrecta:} 
+    \begin{itemize}
+        \item Muy lejos (>80cm): Ruido domina sobre la señal por falta de píxeles.
+        \item Muy cerca (<30cm): Pequeños movimientos se traducen en grandes desplazamientos.
+    \end{itemize}
+    \item \textbf{Compresión de Video:} Cámaras IP o codecs agresivos eliminan los micro-cambios de color necesarios.
+\end{enumerate}
+
+\subsection{Resumen de Fiabilidad} \label{sec:resumen_fiabilidad}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|p{6cm}|p{6cm}|}
+\hline
+\textbf{Variable} & \textbf{Impacto en Precisión} & \textbf{Solución Implementada} \\
+\hline
+Luz Variable & Alto (Destructivo) & \textbf{\hyperref[sec:algoritmo_pos]{Algoritmo POS}} + \textit{Detrending} \\
+\hline
+Movimiento & Alto & Validación de Distancia + \textit{Buffer} \\
+\hline
+Piel Oscura & Medio & Normalización temporal ($C_n$) \\
+\hline
+Auto-Exposición & Crítico (Fallo Total) & Control manual de driver (\href{https://docs.opencv.org/master/}{OpenCV}) \\
+\hline
+Ruido Cámara & Medio & Promedio Espacial (ROI averaging) \\
+\hline
+\end{tabular}
+\caption{Matriz de impacto de variables y soluciones}
+\label{tab:reliability}
+\end{table}
+
+\section{Consideraciones Éticas y Protección de Datos}
+
+El desarrollo de sistemas basados en visión por computador para la extracción de datos biométricos conlleva una responsabilidad ética significativa. En este proyecto se han adoptado estrictas medidas para garantizar la privacidad y los derechos de los participantes.
+
+\subsection{Consentimiento Informado}
+Todas las imágenes y grabaciones de vídeo utilizadas para el entrenamiento, validación y demostración del sistema han sido obtenidas con el \textbf{consentimiento explícito e informado} de los participantes.
+\begin{itemize}
+    \item Se informó a los voluntarios sobre la naturaleza académica del proyecto.
+    \item Se explicó que el objetivo exclusivo es la estimación de parámetros fisiológicos (rPPG) sin fines de identificación biométrica (reconocimiento facial).
+\end{itemize}
+
+\subsection{Privacidad por Diseño (Local Processing)}
+El sistema ha sido diseñado bajo el principio de \textit{Privacy by Design}.
+\begin{itemize}
+    \item \textbf{Procesamiento Local:} Todo el cómputo (detección de rostro, extracción de ROI y análisis de señal) se realiza localmente en el dispositivo (\textit{Edge Computing}).
+    \item \textbf{No Almacenamiento:} El código no guarda ni transmite las imágenes de la cámara a servidores externos. Los frames se procesan en la memoria RAM y se descartan inmediatamente después de extraer el valor numérico del color promedio.
+\end{itemize}
+
+\subsection{Limitación de Responsabilidad (Descargo Médico)}
+Es importante destacar que este software es un prototipo de ingeniería con fines de investigación.
+\begin{itemize}
+    \item \textbf{No es un Dispositivo Médico:} Los resultados obtenidos (BPM, RPM) son estimaciones y no deben utilizarse para diagnóstico, tratamiento o prevención de enfermedades.
+    \item El sistema \textbf{no cuenta} con la certificación de las autoridades sanitarias pertinentes.
+\end{itemize}
+
+\section{Posibles Mejoras Futuras} \label{sec:mejoras_futuras}
+
+Aunque el sistema actual implementa un algoritmo robusto (POS) y validaciones de seguridad, el campo del rPPG está en constante evolución. A continuación, se proponen las mejoras más significativas que podrían llevarse a cabo en futuras iteraciones del proyecto.
+
+\subsection{Implementación de \textit{Deep Learning} (rPPG Neuronal)}
+El método actual (POS) es un algoritmo basado en modelos matemáticos. La tendencia actual del \href{https://konfuzio.com/es/sado-de-la-tecnica/}{estado del arte ("SOTA")} es utilizar Redes Neuronales Convolucionales (CNNs).
+\begin{itemize}
+    \item \textbf{DeepPhys / PhysNet:} Implementar arquitecturas de \textit{Deep Learning} entrenadas de extremo a extremo (\textit{End-to-End}) que reciben los \textit{frames} de video y devuelven la onda de pulso directamente, aprendiendo a ignorar mejor los cambios de iluminación no lineales que el algoritmo POS no puede filtrar.
+    \item \textbf{Ventaja:} Mayor robustez ante movimientos de cabeza y condiciones de luz extremas.
+\end{itemize}
+
+\subsection{Nuevas Métricas: HRV y SpO2}
+Actualmente, el sistema mide la frecuencia cardíaca (BPM) y respiratoria (RPM). Se podría expandir para calcular:
+\begin{itemize}
+    \item \textbf{Variabilidad de la Frecuencia Cardíaca (HRV):} Mide la variación de tiempo entre latidos consecutivos (intervalos R-R). Es un indicador crucial para detectar estrés, fatiga y el estado del sistema nervioso autónomo. Requiere una interpolación temporal muy precisa (\textit{\href{https://www.uv.es/diaz/mn/node40.html}{cubic spline}}) para compensar los bajos FPS de una webcam.
+    \item \textbf{Saturación de Oxígeno (SpO2):} Aunque difícil con cámaras RGB estándar (normalmente requiere infrarrojos), existen técnicas experimentales que comparan el ratio de absorción entre el canal rojo y el azul para estimar el porcentaje de oxígeno en sangre.
+\end{itemize}
+
+\subsection{Cancelación de Ruido Adaptativa}
+Para mejorar la resistencia al movimiento, se puede implementar un filtrado adaptativo en lugar de filtros estáticos (\textit{Butterworth}).
+\begin{itemize}
+    \item \textbf{Filtros LMS/RLS:} Utilizar una señal de referencia de ruido (por ejemplo, tomando el promedio de píxeles del fondo estático o de una zona de la cara sin piel) y restar matemáticamente ese ruido de la señal de la piel utilizando filtros adaptativos (\textit{\href{https://es.wikipedia.org/wiki/Algoritmo_LMS}{Least Mean Squares}}).
+\end{itemize}
+
+\subsection{Optimización y Portabilidad}
+\begin{itemize}
+    \item \textbf{Aceleración por GPU (CUDA):} Migrar el procesamiento de imágenes y la FFT a la tarjeta gráfica utilizando librerías como \texttt{OpenCV-CUDA} para liberar la CPU y permitir el procesamiento de imágenes en resolución 4K.
+    \item \textbf{Aplicación Móvil:} Portar el núcleo del algoritmo a C++ (Android NDK o iOS) para ejecutar el sistema en dispositivos móviles, aprovechando las cámaras de alta calidad de los teléfonos modernos.
+\end{itemize}
+
+\section{Stack Tecnológico y Entorno de Desarrollo}
+
+Para el desarrollo e implementación del proyecto, se ha utilizado el lenguaje de programación \textbf{Python}, apoyado en un ecosistema de computación científica y visión artificial.
+
+\subsection{Entorno de Ejecución} \label{sec:entorno_ejecucion}
+
+\begin{itemize}
+    \item \textbf{Python (3.10.19):} Lenguaje de alto nivel seleccionado por su extensa colección de librerías para ciencia de datos y prototipado rápido.
+    \item \textbf{Anaconda:} Distribución de Python utilizada para la gestión de dependencias y entornos virtuales. Permite aislar las versiones de las librerías para evitar conflictos.
+    \item \textbf{Jupyter Notebook:} Entorno de desarrollo interactivo basado en web. Se utilizó para las fases de prueba y calibración de algoritmos (visualización de gráficas FFT y depuración de filtros), antes de pasar el código a producción en scripts \texttt{.py}.
+    \item \textbf{GitHub:} Plataforma utilizada para el control de versiones, permitiendo el trabajo colaborativo y el seguimiento de cambios en el código fuente.
+    \item \textbf{Visual Studio Code:} Editor de código fuente empleado para la escritura y edición del código Python, con soporte para extensiones de linting y depuración.
+    \item \textbf{Google Drive:} Almacenamiento en la nube utilizado para guardar datasets de video y resultados experimentales.
+\end{itemize}
+
+\subsection{Librerías Principales}
+
+El núcleo del software se apoya en cuatro pilares fundamentales:
+
+\begin{itemize}
+    \item \textbf{OpenCV (cv2):} Librería estándar de la industria para visión por computador. Se encarga de la captura de video desde la webcam, la conversión de espacios de color (BGR a RGB) y el renderizado de la interfaz gráfica (UI) sobre la imagen.
+    
+    \item \textbf{MediaPipe:} \textit{Framework} desarrollado por Google. Del cuál se utiliza el módulo \texttt{FaceMesh} para generar una malla facial de 468 puntos en tiempo real. Esto permite localizar las regiones de interés (ROI) en la piel de forma robusta, incluso si el usuario inclina la cabeza. 
+    
+    \item \textbf{NumPy:} Biblioteca fundamental para la computación científica. Se utiliza para el manejo eficiente de \textit{arrays} multidimensionales, cálculo de promedios de píxeles y operaciones vectoriales necesarias en el algoritmo POS.
+    
+    \item \textbf{SciPy:} Librería de algoritmos matemáticos avanzados. Es crucial para el módulo DSP (Procesamiento Digital de Señales):
+    \begin{itemize}
+        \item \texttt{scipy.signal}: Para el diseño y aplicación de filtros Butterworth y Detrending.
+        \item \texttt{scipy.fft}: Para ejecutar la Transformada Rápida de Fourier y obtener el espectro de frecuencias.
+    \end{itemize}
+\end{itemize}
+
+\newpage
+\section{Bibliografía y Referencias} \label{sec:bibliografia_referencias}
+\vspace{-0.3cm}
+\hrule
+\vspace{0.7cm}
+\subsection{Papers y Fundamentos Científicos}
+
+\begin{itemize}
+    \item \textbf{Algoritmo POS:} Wang, W., den Brinker, A. C., Stuijk, S., \& de Haan, G. (2017). \textit{Algorithmic Principles of Remote PPG}. IEEE Transactions on Biomedical Engineering. \href{https://ieeexplore.ieee.org/document/7565547}{Enlace al Paper (IEEE Xplore)}
+    
+    \item \textbf{Fisiología rPPG:} Verkruysse, W., Svaasand, L. O., \& Nelson, J. S. (2008). \textit{Remote plethysmographic imaging of skin perfusion with digital cameras}. Optics Express. \href{https://opg.optica.org/oe/fulltext.cfm?uri=oe-16-26-21434&id=180537}{Enlace al Paper (Optica Publishing)}
+\end{itemize}
+
+\subsection{Uso de la IA Genarativa} \label{sec:ia}
+
+\begin{itemize}
+    \item \textbf{Gemini:} Se ha usado Gemini para aprendizaje y documentación propia acerca de las funciones y librerías utilizadas a lo largo del proyecto, siendo de ayuda para la posterior redacción del presente documento con dicha información y con las consideraciones necesarias para cumplir el RGPD (Reglamento General de Protección de Datos). \href{https://gemini.google.com}{Enlace a Gemini}
+    \item \textbf{ChatGPT:} Se ha empleado ChatGPT para obtener una lista de utilidades que permite LaTex así como la correcta configuración del entorno Visual Studio Code para trabajar con dicha herramienta en al creación del presente documento. \href{https://chatgpt.com}{Enlace a ChatGPT}
+    \item \textbf{NotebookLM:} Se ha utilizado NotebookLM para la creación de las imágenes utilizadas para la portada. \href{https://notebooklm.google.com}{Enlace a NotebookLM}
+\end{itemize}
+
+\subsection{Documentación Técnica y Librerías}
+
+\begin{itemize}
+    \item Python Software Foundation: \url{https://www.python.org/}
+    \item OpenCV Documentation: \url{https://docs.opencv.org/master/}
+    \item MediaPipe Face Mesh: \url{https://google.github.io/mediapipe/solutions/face_mesh.html}
+    \item SciPy Reference (Signal Processing): \url{https://docs.scipy.org/doc/scipy/reference/signal.html}
+    \item Anaconda Distribution: \url{https://www.anaconda.com/}
+    \item Project GitHub Repository: \href{https://github.com/ivanperezdiaz829/rPPG-Remote-Photoplethysmography}{https://github.com/ivanperezdiaz829/rPPG-Remote-Photoplethysmography}
+\end{itemize}
+
+\end{document}

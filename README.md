@@ -9,7 +9,7 @@ El proyecto consiste en la obtención de datos haciendo uso de la visión por co
 
     - **Precisión esperada:** Muy alta. Con una buena iluminación ha de tener un error menor a ±3 *BPM* comparado con un reloj inteligente o un pulsioxímetro de dedo.
 
-    - **Algoritmo:** Transformada rápida de Fourier (**FFT**) haciendo uso de las librerías `spicy.fftpack.fft`o `numpy.fft`.
+    - **Algoritmo:** Transformada rápida de Fourier (**FFT**) haciendo uso de las librerías `scipy.fftpack.fft`o `numpy.fft`.
 
     - **Proceso:** Se convierte la señal temporal al espectro de frecuencias. Se identifica el pico de máxima potencia (*Peack Frequency*) dentro del rango 0.7-0.4 Hz:
 
@@ -28,7 +28,7 @@ $$
 
     - **¿Cómo obtenerlo?:** Se han de detectar los "picos" de la onda con mucha precisión (*Peak Detection*) en el dominio del tiempo, no solo la frecuencia promedio. En caso de cámaras con pocos FPS (ej. 30) se tendrá que usar interpolación para mejorar la resolución temporal.
 
-    - **Algoritmo:** Detección de picos usando las librerías `spicy.signal.find_peaks`.
+    - **Algoritmo:** Detección de picos usando las librerías `scipy.signal.find_peaks`.
 
     - **Proceso:** Se localizan los máximos locales de la señal filtrada que corresponden a los latidos sistólicos. Se calculan los intervalos entre latidos (*NN intervals*) y se deriva la métrica **SDNN** (Desviación estándar de los intervalos NN).
 
@@ -40,7 +40,7 @@ $$
         - **RSA (Arritmia Sinusal Respiratoria):** El corazón se acelera ligeramente cuando se inspira y se frena cuando se espira. Analizando las fluctuaciones lentas de la señal del pulso, se puede obtener la respiración.
         - **Movimiento:** Usando visión artificial se puede detectar el sutil movimiento cíclico de los hombros o el pecho si entran en el encuadre.
     
-    - **Algoritmo:** Uso de **_Downsamplig_ (Re-muestreo)** y un filtrado de banda específica que a diferencia del pulso, si interesan las frecuencias muy bajas. Librería `spicy.signal.resample`.
+    - **Algoritmo:** Uso de **_Downsamplig_ (Re-muestreo)** y un filtrado de banda específica que a diferencia del pulso, si interesan las frecuencias muy bajas. Librería `scipy.signal.resample`.
 
     - **Proceso:** Se usa un filtro pasa-banda (*Butterworh* de orden 2) con un corte inferior de 0.1 Hz (6 respiraciones/min) y un corte superior de 0.5 Hz (30 respiraciones/min), se extrae la señal respiratoria aislando la "envolvente" de la señal PPG filtrada (o analizar la variación de picos) y se estima el **RPM** sobre la nueva señal de baja frecuencia:
 
