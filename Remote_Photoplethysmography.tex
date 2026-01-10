@@ -329,6 +329,70 @@ freq_dominante = valid_xf[peak_idx]
 rpm = freq_dominante * 60.0
 \end{lstlisting}
 
+
+\section{Pruebas y Validación Experimental} \label{sec:validacion}
+
+Para cuantificar la precisión del sistema rPPG desarrollado, se ha diseñado un protocolo de pruebas comparativas utilizando un dispositivo de referencia clínico (\textit{Ground Truth}).
+
+\subsection{Metodología de Validación}
+Las pruebas se realizaron en un entorno controlado bajo unas condiciones de iluminación muy similares a las ideales.
+\begin{itemize}
+    \item \textbf{Dispositivo de Referencia:} Samsung Watch en frecuancia cardíaca y en frecuencia respiratoria tambien una libreta.
+    \item \textbf{Muestra:} Utilizando la WebCam del portátil (30 FPS estables y sin procesado de entrada de imagen).
+    \item \textbf{Sincronización:} Se realizó la toma de vídeos sincronos entre el reloj y la toma de datos del programa para su posterior comparación, en el caso de la frecuencia respiratoria, se apunta en una libreta las respiraciones cada 30 segundos y 1 minuto para comparar resultados.
+\end{itemize}
+
+\subsection{Resultados Experimentales}
+
+A continuación, se detallan las mediciones obtenidas en las pruebas con 7 sujetos distintos, comparando la lectura del oxímetro de pulso con la obtenida por nuestro sistema rPPG. Mencionar que las pruebas realizadas con la frecuancia respiratoria no mostraban discordancias en la extracción del dato obtenido mediante el conteo con el mostrado por el programa.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.2} % Da un poco más de espacio a las filas
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Sujeto} & \textbf{BPM Referencia} & \textbf{BPM Sistema} & \textbf{Error Absoluto} \\
+\hline
+Sujeto A (Masculino) & 91.0 & 89.0 & 2.0 \\
+\hline
+Sujeto B (Masculino) & 75.0 & 76.0 & 1.0 \\
+\hline
+Sujeto C (Mujer) & 70.0 & 70.0 & 0.0 \\
+\hline
+Sujeto D (Mujer) & 90.0 & 88.5 & 1.5 \\
+\hline
+Sujeto E (Mujer) & 80.6 & 79.0 & 1.6 \\
+\hline
+Sujeto F (Mujer) & 66.0 & 66.0 & 0.0 \\
+\hline
+Sujeto G (Mujer) & 80.0 & 79.0 & 1.0 \\
+\hline
+\hline
+\textbf{Promedio Global} & \textbf{78.94} & \textbf{78.21} & \textbf{1.01} \\
+\hline
+\end{tabular}
+\caption{Comparativa de mediciones de Frecuencia Cardíaca (rPPG vs \textit{Ground Truth})}
+\label{tab:resultados_experimentales}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{Tabla_comparativa.png}
+    \caption{Representación gráfica de la precisión del sistema rPPG frente al dispositivo de referencia en los 7 sujetos de prueba (Gráfica realizada con \texttt{matplotlib.pyplot}).}
+    \label{fig:grafica_comparativa}
+\end{figure}
+
+\vspace{0.3cm}
+
+\subsection{Análisis de Error (MAE)}
+Para evaluar el rendimiento global de manera objetiva, se utiliza el Error Absoluto Medio (MAE), definido como:
+
+\begin{equation}
+    MAE = \frac{1}{n} \sum_{i=1}^{n} | BPM_{ref} - BPM_{rPPG} |
+\end{equation}
+
+Basado en los datos presentados en la Tabla \ref{tab:resultados_experimentales}, el sistema presenta un \textbf{MAE de 1.01 BPM}. Este resultado indica una alta precisión en condiciones controladas, situándose dentro de los márgenes aceptables para aplicaciones de monitoreo de salud sin contacto.
+
 \section{Informe de Viabilidad y Condiciones Operativas} \label{sec:informe_viabilidad}
 
 A continuación, se detallan las consideraciones operativas, limitaciones y variables que afectan al sistema de rPPG implementado. Estas condiciones son críticas para obtener una Relación Señal-Ruido (SNR) adecuada.
@@ -478,6 +542,8 @@ El núcleo del software se apoya en cuatro pilares fundamentales:
 \begin{itemize}
     \item \textbf{OpenCV (cv2):} Librería estándar de la industria para visión por computador. Se encarga de la captura de video desde la webcam, la conversión de espacios de color (BGR a RGB) y el renderizado de la interfaz gráfica (UI) sobre la imagen.
     
+    \item \textbf{Matplotlib:} Bibliotecxa de visualización y creación de gráficas utilizada para generar la Figura 1.
+    
     \item \textbf{MediaPipe:} \textit{Framework} desarrollado por Google. Del cuál se utiliza el módulo \texttt{FaceMesh} para generar una malla facial de 468 puntos en tiempo real. Esto permite localizar las regiones de interés (ROI) en la piel de forma robusta, incluso si el usuario inclina la cabeza. 
     
     \item \textbf{NumPy:} Biblioteca fundamental para la computación científica. Se utiliza para el manejo eficiente de \textit{arrays} multidimensionales, cálculo de promedios de píxeles y operaciones vectoriales necesarias en el algoritmo POS.
@@ -507,7 +573,7 @@ El núcleo del software se apoya en cuatro pilares fundamentales:
 \begin{itemize}
     \item \textbf{Gemini:} Se ha usado Gemini para aprendizaje y documentación propia acerca de las funciones y librerías utilizadas a lo largo del proyecto, siendo de ayuda para la posterior redacción del presente documento con dicha información y con las consideraciones necesarias para cumplir el RGPD (Reglamento General de Protección de Datos). \href{https://gemini.google.com}{Enlace a Gemini}
     \item \textbf{ChatGPT:} Se ha empleado ChatGPT para obtener una lista de utilidades que permite LaTex así como la correcta configuración del entorno Visual Studio Code para trabajar con dicha herramienta en al creación del presente documento. \href{https://chatgpt.com}{Enlace a ChatGPT}
-    \item \textbf{NotebookLM:} Se ha utilizado NotebookLM para la creación de las imágenes utilizadas para la portada. \href{https://notebooklm.google.com}{Enlace a NotebookLM}
+    \item \textbf{NotebookLM:} Se ha utilizado NotebookLM para la creación de las imágenes utilizadas para la portada, así como para la creación de manera íntegra del documento de presentación de la propuesta inicial basado en un preinforme con las ideas generales del proyecto. \href{https://notebooklm.google.com}{Enlace a NotebookLM}
 \end{itemize}
 
 \subsection{Documentación Técnica y Librerías}
