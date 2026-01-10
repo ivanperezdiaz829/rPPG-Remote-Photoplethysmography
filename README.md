@@ -1,65 +1,70 @@
-# **Remote Photoplethysmography (rPPG)**
+# **Fotoplestimografía Remota (rPPG)**
 
-El proyecto consiste en la obtención de datos haciendo uso de la visión por computador, creando un modelo de **rPPG (Fotoplestimografía Remota)** en donde se extraerán los siguientes datos a partir de un video o en tiempo real de la cara de una persona:
+## Extracción de signos vitales en tiempo real mediante Visión por Computador
 
-1. **Frecuencia Cardíaca (Heart Rate - HR):** Es el dato base a obtener y el objetivo principal del proyecto.
-    - **¿Qué es?:** El número de contracciones del corazón por minuto (*BPM*).
+![Python](https://img.shields.io/badge/Python-3.10-blue?logo=python&logoColor=white)
+![OpenCV](https://img.shields.io/badge/OpenCV-Computer%20Vision-green?logo=opencv&logoColor=white)
+![MediaPipe](https://img.shields.io/badge/MediaPipe-Face%20Mesh-orange)
+![Status](https://img.shields.io/badge/Status-Validado-success)
 
-    - **¿Cómo obtenerlo?:** Calculando la frecuencia dominante del espectro de Fourier (**FFT**) de la señal rPPG.
+## Documentación Completa
+Para una explicación matemática detallada, fundamentos físicos y análisis de resultados, consulta la memoria técnica del proyecto:
 
-    - **Precisión esperada:** Muy alta. Con una buena iluminación ha de tener un error menor a ±3 *BPM* comparado con un reloj inteligente o un pulsioxímetro de dedo.
+### [👉 **Leer Informe Técnico (PDF)**](Remote_Photoplethysmography.pdf)
+*(Haz clic arriba para ver el documento LaTeX compilado)*
 
-    - **Algoritmo:** Transformada rápida de Fourier (**FFT**) haciendo uso de las librerías `scipy.fftpack.fft`o `numpy.fft`.
+---
 
-    - **Proceso:** Se convierte la señal temporal al espectro de frecuencias. Se identifica el pico de máxima potencia (*Peack Frequency*) dentro del rango 0.7-0.4 Hz:
+## ¿En qué consiste?
+Este proyecto implementa un sistema de **rPPG (Remote Photoplethysmography)** capaz de medir la **Frecuencia Cardíaca (BPM)** y la **Frecuencia Respiratoria (RPM)** utilizando únicamente una webcam convencional, sin necesidad de sensores físicos en contacto con la piel.
 
-$$
-\text{BPM} = f_{\text{max}} \times 60
-$$
+El sistema detecta las micro-variaciones imperceptibles en el color de la piel causadas por la absorción de luz de la hemoglobina con cada latido del corazón.
 
+### Características Principales
+* **No intrusivo:** Medición 100% sin contacto.
+* **Tiempo Real:** Procesamiento de video en vivo (30 FPS).
+* **Privacidad:** Todo el procesamiento es local (*Edge Computing*), ninguna imagen se guarda ni se envía a la nube.
+* **Robustez:** Implementa el algoritmo **POS (Plane-Orthogonal-to-Skin)** para filtrar cambios de iluminación y movimiento.
 
-2. **Variabilidad de la Frecuencia Cardíaca (HRV):** Este es el parámetro que saca la proporción de cambio de la frecuencia cardíaca.
+## Stack Tecnológico
+El proyecto ha sido desarrollado en **Python 3.10** utilizando las siguientes librerías clave:
 
-    - **¿Qué es?:** En el corazón el tiempo de latido va variando con el tiempo (ej. 0.8s, 0.85s, 0.79s, etc). La HRV mide dicha variación.
+* **OpenCV:** Captura de video y manejo de imagen.
+* **MediaPipe FaceMesh:** Detección de rostro y mallado facial (468 puntos) para extracción de ROI robusta.
+* **NumPy:** Operaciones vectoriales y álgebra lineal para el algoritmo POS.
+* **SciPy:** Procesamiento Digital de Señales (Filtros Butterworth, FFT, Detrending).
 
-    - **¿Qué indica?:** Es un indicador directo de **estrés y salud del sistema nervioso autónomo**.
-        - HRV Alta = Relajado / Recuperado.
-        - HRV Baja = Estrés / Fatiga / Ansiedad.
+## Validación y Resultados
+El sistema ha sido validado experimentalmente con 7 sujetos de prueba comparando los resultados contra un oxímetro de pulso clínico (*Ground Truth*).
 
-    - **¿Cómo obtenerlo?:** Se han de detectar los "picos" de la onda con mucha precisión (*Peak Detection*) en el dominio del tiempo, no solo la frecuencia promedio. En caso de cámaras con pocos FPS (ej. 30) se tendrá que usar interpolación para mejorar la resolución temporal.
+| Métrica | Resultado |
+| :--- | :--- |
+| **BPM Promedio (Ref)** | 78.94 |
+| **BPM Promedio (Sistema)** | 78.21 |
+| **Error Absoluto Medio (MAE)** | **1.01 BPM** |
 
-    - **Algoritmo:** Detección de picos usando las librerías `scipy.signal.find_peaks`.
+> El sistema demostró una alta precisión en condiciones de reposo e iluminación controlada.
 
-    - **Proceso:** Se localizan los máximos locales de la señal filtrada que corresponden a los latidos sistólicos. Se calculan los intervalos entre latidos (*NN intervals*) y se deriva la métrica **SDNN** (Desviación estándar de los intervalos NN).
+## Instalación y Uso
 
-3. **Frecuencia Respiratoria (Resporatory Rate - RR):**
+1. **Clonar el repositorio:**
 
-    - **¿Qué es?:** Son las respiraciones por minuto (*RPM*).
+   ```bash
+   git clone [https://github.com/ivanperezdiaz829/rPPG-Remote-Photoplethysmography.git](https://github.com/ivanperezdiaz829/rPPG-Remote-Photoplethysmography.git)
 
-    - **¿Cómo se obtiene?:** Hay dos fenómenos que permiten medir el dato a partir de la cara:
-        - **RSA (Arritmia Sinusal Respiratoria):** El corazón se acelera ligeramente cuando se inspira y se frena cuando se espira. Analizando las fluctuaciones lentas de la señal del pulso, se puede obtener la respiración.
-        - **Movimiento:** Usando visión artificial se puede detectar el sutil movimiento cíclico de los hombros o el pecho si entran en el encuadre.
-    
-    - **Algoritmo:** Uso de **_Downsamplig_ (Re-muestreo)** y un filtrado de banda específica que a diferencia del pulso, si interesan las frecuencias muy bajas. Librería `scipy.signal.resample`.
+   cd rPPG-Remote-Photoplethysmography
+   ```
 
-    - **Proceso:** Se usa un filtro pasa-banda (*Butterworh* de orden 2) con un corte inferior de 0.1 Hz (6 respiraciones/min) y un corte superior de 0.5 Hz (30 respiraciones/min), se extrae la señal respiratoria aislando la "envolvente" de la señal PPG filtrada (o analizar la variación de picos) y se estima el **RPM** sobre la nueva señal de baja frecuencia:
+## Vídeo del producto
 
-$$
-\text{RPM} = \text{Frecuencia Dominante Baja} \times 60
-$$
+[![Ver en YouTube](https://img.youtube.com/vi/e5z5noEjIEY/0.jpg)](https://www.youtube.com/watch?v=e5z5noEjIEY)
 
-4. **Saturación de Oxígeno ($SpO_2$):** Es con diferencia el parámetro más complicado de obtener y puede ser el que se termine descartando.
+## Autoría
 
-    - **¿Qué es?:** Es el porcentaje de hemoglobina que transporta oxígeno.
+Este proyecto ha sido desarrollado como parte de un trabajo de investigación de Visión por Computador por:
 
-    - **Problema:** Los oxímetros reales usan luz infraroja o luz roja y la webcam y cámaras comúnes solo tienen roja, azul y verde.
+* **Iván Pérez Díaz** - *Desarrollo de Software,  Algoritmo de la Frecuencia Cardíaca (BPM), Investigación, Pruebas y Validación* - [GitHub](https://github.com/ivanperezdiaz829)
+* **Asia Gatta** - *Algoritmo de la Frecuencia Respiratoria (RPM) e Investigación.*
 
-    - **Proceso:** Se aplica una regresión lineal empírica para estimar el porcentaje. Y luego, usando la fórmula empírica para estimar porcentaje ($SpO_2 = A - B \times Ratio$).
-
-    - **Importante:** Sin calibración este valor no será más que una estimación relativa.
-
-    - **Solución aproximada:** Utilizando el "ratio de ratios" se puede comparar la absorción del canal rojo vs la del canal azul o verde:
-    
-$$
-\text{Ratio} = \frac{AC_{\text{red}} / DC_{\text{red}}}{AC_{\text{blue}} / DC_{\text{blue}}}
-$$
+---
+*Este software es un prototipo con fines académicos y no constituye un dispositivo médico certificado.*
