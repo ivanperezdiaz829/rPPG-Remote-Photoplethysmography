@@ -50,7 +50,7 @@ El sistema ha sido validado experimentalmente con 7 sujetos de prueba comparando
 1. **Clonar el repositorio:**
 
    ```bash
-   git clone [https://github.com/ivanperezdiaz829/rPPG-Remote-Photoplethysmography.git](https://github.com/ivanperezdiaz829/rPPG-Remote-Photoplethysmography.git)
+   git clone https://github.com/ivanperezdiaz829/rPPG-Remote-Photoplethysmography
 
    cd rPPG-Remote-Photoplethysmography
    ```
